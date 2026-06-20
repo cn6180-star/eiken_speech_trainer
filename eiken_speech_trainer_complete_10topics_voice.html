@@ -1,0 +1,2453 @@
+<!DOCTYPE html>
+<html lang="ja">
+<head>
+<meta charset="UTF-8" />
+<meta name="viewport" content="width=device-width, initial-scale=1.0" />
+<title>Eiken Speech Trainer - Read Aloud Trial</title>
+<style>
+  :root{
+    --bg:#eef7ff;
+    --card:#ffffff;
+    --text:#17365d;
+    --muted:#667789;
+    --border:#d7e5f2;
+    --blue:#0875ee;
+    --green:#06c95b;
+    --orange:#ff9f1c;
+    --purple:#7b61ff;
+    --pale:#d9ecff;
+    --star:#f5b301;
+  }
+  *{box-sizing:border-box}
+  body{
+    margin:0;
+    font-family:-apple-system,BlinkMacSystemFont,"Segoe UI",sans-serif;
+    background:var(--bg);
+    color:var(--text);
+    line-height:1.6;
+  }
+  main{
+    max-width:820px;
+    margin:0 auto;
+    padding:28px 18px 60px;
+  }
+  h1{
+    margin:0 0 18px;
+    font-size:1.95rem;
+    line-height:1.15;
+    color:#075fc7;
+    font-weight:850;
+    white-space:nowrap;
+  }
+  .subtitle{
+    color:var(--muted);
+    font-size:1.02rem;
+    margin-bottom:22px;
+  }
+  .card{
+    background:var(--card);
+    border:1px solid var(--border);
+    border-radius:28px;
+    padding:22px;
+    margin:16px 0;
+    box-shadow:0 2px 10px rgba(36,80,120,.06);
+  }
+  h2{ margin:0; font-size:1.35rem; }
+  .screen-head{
+    display:flex;
+    align-items:center;
+    gap:10px;
+    margin-bottom:16px;
+  }
+  .back-mini{
+    flex:0 0 auto;
+    border:1px solid var(--border);
+    background:#fff;
+    color:var(--text);
+    border-radius:999px;
+    padding:8px 12px;
+    font-weight:800;
+    font-size:.95rem;
+    cursor:pointer;
+  }
+  .desc{
+    color:var(--muted);
+    font-size:1rem;
+    margin-bottom:16px;
+  }
+  .big-btn{
+    width:100%;
+    border:0;
+    border-radius:22px;
+    padding:17px 16px;
+    margin:9px 0;
+    font-size:1.12rem;
+    font-weight:800;
+    cursor:pointer;
+  }
+  .blue{background:var(--blue); color:white;}
+  .green{background:var(--green); color:white;}
+  .orange{background:var(--orange); color:white;}
+  .purple{background:var(--purple); color:white;}
+  .pale{background:var(--pale); color:#075fc7;}
+  .white{
+    background:white;
+    color:var(--text);
+    border:1px solid var(--border);
+  }
+  .row{ display:flex; gap:10px; flex-wrap:wrap; }
+
+  .stance-row{
+    display:grid;
+    grid-template-columns:1fr 1fr;
+    gap:10px;
+    margin:12px 0;
+  }
+  .stance-btn{
+    border:1px solid var(--border);
+    border-radius:18px;
+    padding:12px 10px;
+    font-size:1rem;
+    font-weight:900;
+    cursor:pointer;
+  }
+
+  .half{flex:1 1 140px;}
+  .selected{
+    outline:4px solid rgba(8,117,238,.22);
+    transform:translateY(-1px);
+  }
+  .small{ color:var(--muted); font-size:.9rem; }
+  select{
+    width:100%;
+    padding:14px;
+    border-radius:16px;
+    border:1px solid var(--border);
+    background:white;
+    font-size:1rem;
+    color:var(--text);
+    margin:8px 0 12px;
+  }
+  .topic-box{
+    background:#f7fbff;
+    border:1px solid var(--border);
+    border-radius:18px;
+    padding:14px;
+    margin:10px 0;
+  }
+  .topic-title{ font-weight:800; font-size:1.05rem; }
+  .meta{color:var(--muted); font-size:.9rem;}
+  .mode-switch{
+    display:flex;
+    gap:7px;
+    margin:12px 0;
+  }
+  .mode-switch button{
+    flex:1;
+    border:1px solid var(--border);
+    border-radius:15px;
+    padding:10px 5px;
+    font-size:.92rem;
+    font-weight:800;
+    cursor:pointer;
+    background:#fff;
+    color:var(--text);
+  }
+  .mode-switch button.active{
+    background:var(--pale);
+    color:#075fc7;
+    outline:3px solid rgba(8,117,238,.16);
+  }
+  .line-card{
+    border:1px solid var(--border);
+    border-radius:20px;
+    padding:15px;
+    margin:12px 0;
+    background:#fff;
+  }
+  .ja{font-weight:700; color:#253b53;}
+  .en{margin-top:8px; color:#111; font-size:1.02rem;}
+  .hidden-answer{display:none;}
+  .star{
+    border:1px solid var(--border);
+    background:white;
+    border-radius:16px;
+    padding:7px 11px;
+    font-size:1.1rem;
+    cursor:pointer;
+  }
+  .star.on{
+    background:#fff4c2;
+    border-color:var(--star);
+  }
+  .topline{
+    display:flex;
+    justify-content:space-between;
+    align-items:center;
+    gap:8px;
+  }
+  .phase-panel{display:none;}
+  .phase-panel.active{display:block;}
+  .speech-card{
+    background:#f8fcff;
+    border:1px solid var(--border);
+    border-radius:22px;
+    padding:18px;
+    margin:14px 0;
+    min-height:220px;
+    display:flex;
+    flex-direction:column;
+    justify-content:center;
+    gap:12px;
+  }
+  .cue-label{
+    display:inline-block;
+    width:max-content;
+    background:var(--pale);
+    color:#075fc7;
+    font-weight:850;
+    border-radius:999px;
+    padding:4px 10px;
+    font-size:.82rem;
+  }
+  .cue-main{
+    color:#111;
+    font-size:1.14rem;
+    font-weight:800;
+    line-height:1.45;
+  }
+  .answer-preview{
+    color:#3f5163;
+    border-left:4px solid var(--border);
+    padding-left:12px;
+    font-size:1.04rem;
+    font-weight:650;
+    line-height:1.55;
+  }
+  .speech-actions{
+    display:grid;
+    grid-template-columns:76px 1fr;
+    gap:10px;
+    align-items:stretch;
+  }
+  .speech-actions .star{ height:58px; }
+  .next-compact{
+    border:0;
+    border-radius:20px;
+    background:var(--green);
+    color:white;
+    font-size:1.2rem;
+    font-weight:900;
+    cursor:pointer;
+  }
+  .restart-compact{
+    width:100%;
+    border:1px solid var(--border);
+    background:#fff;
+    color:var(--text);
+    border-radius:20px;
+    padding:13px 10px;
+    margin-top:10px;
+    font-size:1rem;
+    font-weight:800;
+    cursor:pointer;
+  }
+  .read-controls{
+    display:grid;
+    grid-template-columns:1fr 1fr;
+    gap:10px;
+    margin:12px 0;
+  }
+  .read-controls button, .read-line button, .speed-row button{
+    border:1px solid var(--border);
+    border-radius:18px;
+    padding:12px 10px;
+    font-size:1rem;
+    font-weight:800;
+    cursor:pointer;
+    background:#fff;
+    color:var(--text);
+  }
+  .read-controls .play-all{
+    background:var(--orange);
+    color:#fff;
+    border-color:var(--orange);
+  }
+  .read-controls .stop{
+    background:#fff;
+    color:#b00020;
+  }
+  .speed-row{
+    display:flex;
+    gap:8px;
+    margin:10px 0 16px;
+  }
+  .speed-row button{ flex:1; padding:9px 6px; font-size:.9rem; }
+  .speed-row button.active{
+    background:var(--pale);
+    color:#075fc7;
+    outline:3px solid rgba(8,117,238,.16);
+  }
+  .voice-box{
+    border:1px solid var(--border);
+    background:#f7fbff;
+    border-radius:20px;
+    padding:13px;
+    margin:12px 0 14px;
+  }
+  .voice-row{
+    display:grid;
+    grid-template-columns:1fr auto;
+    gap:9px;
+    align-items:center;
+  }
+  .voice-row select{ margin:0; }
+  .voice-row button{
+    border:1px solid var(--border);
+    border-radius:16px;
+    padding:12px 13px;
+    font-size:.95rem;
+    font-weight:800;
+    cursor:pointer;
+    background:#fff;
+    color:var(--text);
+    white-space:nowrap;
+  }
+  .voice-note{
+    color:var(--muted);
+    font-size:.85rem;
+    margin-top:8px;
+  }
+
+  .read-line{
+    border:1px solid var(--border);
+    background:#fff;
+    border-radius:20px;
+    padding:15px;
+    margin:12px 0;
+  }
+  .read-line.active{
+    outline:4px solid rgba(255,159,28,.22);
+    border-color:#ffc26d;
+  }
+  .read-en{
+    color:#111;
+    font-size:1.13rem;
+    font-weight:700;
+    line-height:1.55;
+    margin-bottom:10px;
+  }
+  .read-line button{
+    width:100%;
+    background:#f7fbff;
+  }
+
+  .exam-box{
+    background:#f8fcff;
+    border:1px solid var(--border);
+    border-radius:22px;
+    padding:18px;
+    text-align:center;
+    margin:14px 0;
+  }
+  .timer{
+    font-size:3rem;
+    font-weight:900;
+    color:#111;
+    line-height:1.2;
+  }
+
+  .finish{
+    text-align:center;
+    font-size:1.25rem;
+    font-weight:900;
+    padding:20px 0;
+  }
+  textarea{
+    width:100%;
+    min-height:160px;
+    border:1px solid var(--border);
+    border-radius:16px;
+    padding:12px;
+    font-size:.9rem;
+  }
+</style>
+</head>
+<body>
+<main>
+  <h1>Eiken Speech Trainer</h1>
+
+  <section class="card" id="homeCard">
+    
+
+    <label class="small">Category</label>
+    <select id="categorySelect" onchange="changeCategory()"></select>
+
+    <label class="small">Topic</label>
+    <select id="topicSelect" onchange="changeTopic()"></select>
+
+    <div class="topic-box">
+      <div class="topic-title" id="currentTopic"></div>
+      <div class="meta" id="currentMeta"></div>
+    </div>
+
+    <div class="stance-row">
+      <button id="yesBtn" class="stance-btn white" onclick="setStance('Yes')">YES</button>
+      <button id="noBtn" class="stance-btn white" onclick="setStance('No')">NO</button>
+    </div>
+
+    <button class="big-btn blue" onclick="setPhase('compose')">① 全文英作文・暗記</button>
+    <button class="big-btn green" onclick="setPhase('speech')">② スピーチ確認</button>
+    <button class="big-btn orange" onclick="setPhase('read')">③ 通し音読</button>
+    <button class="big-btn purple" onclick="setPhase('exam')">④ 本番スピーチ録音</button>
+    <button class="big-btn pale" onclick="setPhase('review')">⭐ 復習ラインだけ</button>
+
+    
+  </section>
+
+  <section class="card phase-panel" id="composePanel">
+    <div class="screen-head">
+      <button class="back-mini" onclick="setPhase('home')">← 戻る</button>
+      <h2>① 全文英作文・暗記</h2>
+    </div>
+
+    <div class="mode-switch">
+      <button id="jpBtn" class="active" onclick="setDisplayMode('jp')">JP→EN</button>
+      <button id="enBtn" onclick="setDisplayMode('en')">EN only</button>
+      <button id="bothBtn" onclick="setDisplayMode('both')">Both</button>
+    </div>
+
+    <p class="small">JP→ENではカードをタップすると英語が出ます。⭐で苦手行を登録できます。</p>
+    <div id="composeList"></div>
+  </section>
+
+  <section class="card phase-panel" id="speechPanel">
+    <div class="screen-head">
+      <button class="back-mini" onclick="setPhase('home')">← 戻る</button>
+      <h2>② スピーチ確認</h2>
+    </div>
+
+    <div class="meta" id="speechProgress"></div>
+    <div class="speech-card" id="speechMain"></div>
+
+    <div class="speech-actions">
+      <button class="star" id="speechStar" onclick="toggleCurrentStar()">⭐</button>
+      <button class="next-compact" id="nextBtn" onclick="nextLine()">Next</button>
+    </div>
+    <button class="restart-compact" onclick="restartSpeech()">Restart</button>
+  </section>
+
+  <section class="card phase-panel" id="readPanel">
+    <div class="screen-head">
+      <button class="back-mini" onclick="setPhase('home')">← 戻る</button>
+      <h2>③ 通し音読</h2>
+    </div>
+
+    <div class="meta" id="readMeta"></div>
+
+    <div class="read-controls">
+      <button class="play-all" onclick="playAll()">▶ 全文再生</button>
+      <button class="stop" onclick="stopSpeaking()">■ 停止</button>
+    </div>
+
+    <div class="speed-row">
+      <button id="speed06" onclick="setRate(0.6)">0.6x</button>
+      <button id="speed08" onclick="setRate(0.8)">0.8x</button>
+      <button id="speed10" onclick="setRate(1.0)" class="active">1.0x</button>
+    </div>
+
+    <div class="voice-box">
+      <label class="small">Voice</label>
+      <div class="voice-row">
+        <select id="voiceSelect" onchange="selectVoice()"></select>
+        <button onclick="testVoice()">▶ Test</button>
+      </div>
+      <div class="voice-note" id="voiceNote">Loading voices...</div>
+    </div>
+
+    <p class="small">英文だけを見ながら、音声にかぶせてシャドーイングできます。</p>
+    <div id="readList"></div>
+  </section>
+
+
+  <section class="card phase-panel" id="examPanel">
+    <div class="screen-head">
+      <button class="back-mini" onclick="setPhase('home')">← 戻る</button>
+      <h2>④ 本番スピーチ録音</h2>
+    </div>
+
+    <div class="meta" id="examMeta"></div>
+
+    <div class="exam-box">
+      <div class="timer" id="timer">02:00</div>
+      <div class="small">英文・キューなしで2分間スピーチします。</div>
+    </div>
+
+    <div class="read-controls">
+      <button class="play-all" id="recordBtn" onclick="startExamRecording()">● 録音開始</button>
+      <button class="stop" onclick="stopExamRecording()">■ 停止</button>
+    </div>
+
+    <div class="read-controls">
+      <button onclick="playRecording()">▶ 録音再生</button>
+      <button class="stop" onclick="clearRecording()">録音削除</button>
+    </div>
+
+    <audio id="recordingAudio" controls style="width:100%; display:none; margin-top:12px;"></audio>
+
+    <button class="restart-compact" onclick="resetTimer()">Timer Reset</button>
+  </section>
+
+  <section class="card phase-panel" id="reviewPanel">
+    <div class="screen-head">
+      <button class="back-mini" onclick="setPhase('home')">← 戻る</button>
+      <h2>⭐ 復習ラインだけ</h2>
+    </div>
+
+    <p class="small">⭐を付けた行だけ表示します。もう覚えたら⭐を外せます。</p>
+    <div id="reviewList"></div>
+  </section>
+
+  <section class="card">
+    <details>
+      <summary>Full speech text</summary>
+      <textarea readonly id="fullText"></textarea>
+    </details>
+  </section>
+</main>
+
+<script>
+const speeches = [
+  {
+    "id": "remote_work_yes",
+    "topicId": "remote_work",
+    "category": "Technology / Modern Society",
+    "title": "Has the rise of remote work improved work-life balance?",
+    "stance": "Yes",
+    "lines": [
+      {
+        "cue": "主張",
+        "hint": "YES：改善した",
+        "ja": "リモートワークの普及はワークライフバランスを改善したと思います。",
+        "en": "I agree with the statement that the rise of remote work has improved work-life balance."
+      },
+      {
+        "cue": "導入",
+        "hint": "理由は2つ",
+        "ja": "理由は主に2つあります。",
+        "en": "There are two main reasons for this."
+      },
+      {
+        "cue": "理由1",
+        "hint": "通勤時間を節約→私生活の時間が増える",
+        "ja": "まず、リモートワークは通勤時間を節約できるので、私生活の時間が増えます。",
+        "en": "Firstly, remote work saves commuting time, so people have more time for their personal lives."
+      },
+      {
+        "cue": "具体例1",
+        "hint": "家族と過ごす時間",
+        "ja": "例えば、家族とより質の高い時間を過ごすことができます。",
+        "en": "For example, they can spend more quality time with their families."
+      },
+      {
+        "cue": "補足1",
+        "hint": "都市部の通勤→ストレス軽減",
+        "ja": "多くの都市では通勤に毎日何時間もかかるため、それをなくすことで、特に働く親のストレスを減らせます。",
+        "en": "In many cities, commuting can take hours each day, so eliminating it can help reduce stress, especially for working parents."
+      },
+      {
+        "cue": "理由2",
+        "hint": "スケジュールの柔軟性",
+        "ja": "次に、リモートワークはスケジュールにより柔軟性を与えます。",
+        "en": "Secondly, remote work gives people more flexibility in their schedules."
+      },
+      {
+        "cue": "説明2",
+        "hint": "休憩・タスク管理→両立",
+        "ja": "いつ休憩するか、どうタスクを管理するかを決められるため、仕事と私生活の責任のバランスを取りやすくなります。",
+        "en": "They can decide when to take breaks and how to manage their tasks, which makes it easier to strike a balance between work and personal responsibilities."
+      },
+      {
+        "cue": "具体例2",
+        "hint": "子どもの世話",
+        "ja": "例えば、親は子どもの世話をよりしやすくなります。",
+        "en": "For example, parents can take better care of their children."
+      },
+      {
+        "cue": "結論",
+        "hint": "より良いワークライフバランス",
+        "ja": "以上の理由から、リモートワークは多くの人がより良いワークライフバランスを実現する助けになっていると思います。",
+        "en": "For these reasons, I believe that remote work has helped many people achieve a better work-life balance."
+      }
+    ]
+  },
+  {
+    "id": "remote_work_no",
+    "topicId": "remote_work",
+    "category": "Technology / Modern Society",
+    "title": "Has the rise of remote work improved work-life balance?",
+    "stance": "No",
+    "lines": [
+      {
+        "cue": "主張",
+        "hint": "NO：改善していない",
+        "ja": "リモートワークの普及がワークライフバランスを改善したとは思いません。",
+        "en": "I disagree with the statement that the rise of remote work has improved work-life balance."
+      },
+      {
+        "cue": "導入",
+        "hint": "理由は2つ",
+        "ja": "理由は主に2つあります。",
+        "en": "There are two main reasons for this."
+      },
+      {
+        "cue": "理由1",
+        "hint": "仕事と私生活の境界が曖昧",
+        "ja": "まず、リモートワークは仕事と私生活の境界を曖昧にします。",
+        "en": "Firstly, remote work can blur the boundary between work and personal life."
+      },
+      {
+        "cue": "説明1",
+        "hint": "オフィス勤務は切り替えがある",
+        "ja": "オフィスで働く場合、家と職場には明確な区切りがあり、退勤すれば仕事を置いて帰れます。",
+        "en": "When you work in an office, there's a clear separation between your home and your workplace, and when you leave your office, you can leave your work behind."
+      },
+      {
+        "cue": "対比",
+        "hint": "在宅勤務は切り替えが難しい",
+        "ja": "一方、自宅で働くと、仕事と私生活を切り離すのが難しくなります。",
+        "en": "On the other hand, if people work from home, it becomes difficult to separate work from their private time."
+      },
+      {
+        "cue": "結果1",
+        "hint": "長時間労働・ストレス",
+        "ja": "その結果、労働時間が長くなり、仕事関連のストレスを減らしにくくなるかもしれません。",
+        "en": "As a result, people may end up working longer hours and experience work-related stress that is difficult to reduce."
+      },
+      {
+        "cue": "理由2",
+        "hint": "対面コミュニケーション減少",
+        "ja": "次に、リモートワークは対面でのコミュニケーションを減らします。",
+        "en": "Secondly, remote work reduces face-to-face communication."
+      },
+      {
+        "cue": "説明2",
+        "hint": "協力・チーム所属感が弱まる",
+        "ja": "これにより、従業員が効果的に協力したり、チームに属している感覚を持ったりすることが難しくなります。",
+        "en": "This can make it harder for employees to collaborate effectively and have a sense of belonging to a team."
+      },
+      {
+        "cue": "結果2",
+        "hint": "孤立・メンタルヘルス",
+        "ja": "その結果、従業員は孤立を感じ、精神面に悪影響が出るかもしれません。",
+        "en": "As a result, employees may feel isolated, which can negatively affect their mental health."
+      },
+      {
+        "cue": "結論",
+        "hint": "必ずしも改善していない",
+        "ja": "以上の理由から、リモートワークは必ずしもワークライフバランスを改善したとは思いません。",
+        "en": "For these reasons, I believe that remote work has not necessarily improved work-life balance."
+      }
+    ]
+  },
+  {
+    "id": "ai_regulation_yes",
+    "topicId": "ai_regulation",
+    "category": "Technology / Modern Society",
+    "title": "Should governments impose strict regulations on artificial intelligence development?",
+    "stance": "Yes",
+    "lines": [
+      {
+        "cue": "主張",
+        "hint": "YES：AI開発に厳しい規制",
+        "ja": "政府はAI開発に厳しい規制を課すべきだと思います。",
+        "en": "I agree with the statement that governments should impose strict regulations on artificial intelligence development."
+      },
+      {
+        "cue": "導入",
+        "hint": "理由は2つ",
+        "ja": "理由は主に2つあります。",
+        "en": "There are two main reasons for this."
+      },
+      {
+        "cue": "理由1",
+        "hint": "社会・個人への悪影響",
+        "ja": "まず、AIは社会と個人の両方に有害な影響を与える可能性があります。",
+        "en": "Firstly, artificial intelligence may have harmful effects on both society and individuals."
+      },
+      {
+        "cue": "具体例1",
+        "hint": "プライバシー侵害",
+        "ja": "例えば、プライバシー侵害につながる可能性があります。",
+        "en": "For example, it could lead to invasions of privacy."
+      },
+      {
+        "cue": "補足1",
+        "hint": "個人データは取り戻せない",
+        "ja": "一度AIツールに個人データを入力すると、それを取り戻す方法はありません。",
+        "en": "Once people input their personal data into AI tools, there is no way to take it back."
+      },
+      {
+        "cue": "具体例2",
+        "hint": "雇用喪失",
+        "ja": "もう一つの懸念は雇用喪失です。",
+        "en": "Another concern is job displacement."
+      },
+      {
+        "cue": "結果1",
+        "hint": "失業率上昇",
+        "ja": "これは失業率の上昇につながるかもしれません。",
+        "en": "This may result in higher unemployment rates."
+      },
+      {
+        "cue": "理由2",
+        "hint": "AIの悪用",
+        "ja": "次に、AIは悪用される可能性があります。",
+        "en": "Secondly, AI can be misused."
+      },
+      {
+        "cue": "具体例3",
+        "hint": "誤情報の拡散",
+        "ja": "例えば、誤情報の拡散はすでにSNS上で深刻な問題になっています。",
+        "en": "For instance, spreading misinformation has already become a serious problem on social media."
+      },
+      {
+        "cue": "補足2",
+        "hint": "規制なしで悪化",
+        "ja": "適切な規制がなければ、この問題はさらに悪化する可能性があります。",
+        "en": "This problem could become even worse without proper regulations."
+      },
+      {
+        "cue": "具体例4",
+        "hint": "犯罪・自律型兵器",
+        "ja": "AIは犯罪や自律型兵器の開発など、より危険な目的にも使われ、世界中に混乱を引き起こす可能性があります。",
+        "en": "AI could also be used for more dangerous purposes, such as committing crimes and creating autonomous weapons, causing havoc worldwide."
+      },
+      {
+        "cue": "結論",
+        "hint": "より厳しい規制を実施",
+        "ja": "以上の理由から、政府はAI開発により厳しい規制を実施すべきだと強く思います。",
+        "en": "For these reasons, I strongly believe that governments should implement stricter regulations on artificial intelligence development."
+      }
+    ]
+  },
+  {
+    "id": "ai_regulation_no",
+    "topicId": "ai_regulation",
+    "category": "Technology / Modern Society",
+    "title": "Should governments impose strict regulations on artificial intelligence development?",
+    "stance": "No",
+    "lines": [
+      {
+        "cue": "主張",
+        "hint": "NO：厳しい規制に反対",
+        "ja": "政府がAI開発に厳しい規制を課すべきだとは思いません。",
+        "en": "I disagree with the statement that governments should impose strict regulations on artificial intelligence development."
+      },
+      {
+        "cue": "導入",
+        "hint": "理由は2つ",
+        "ja": "理由は主に2つあります。",
+        "en": "There are two main reasons for this."
+      },
+      {
+        "cue": "理由1",
+        "hint": "技術発展を遅らせる",
+        "ja": "まず、厳しい規制は技術発展を遅らせる可能性があります。",
+        "en": "Firstly, strict regulations could slow down technological advancement."
+      },
+      {
+        "cue": "補足1",
+        "hint": "多くの国がAI開発に注力",
+        "ja": "近年、多くの国がAI技術の開発に大きな努力をしています。",
+        "en": "In recent years, many countries have been making great efforts to develop AI technology."
+      },
+      {
+        "cue": "結果1",
+        "hint": "国際競争力・経済成長",
+        "ja": "したがって、厳しい規制は国際競争力の低下につながり、経済成長にも悪影響を与える可能性があります。",
+        "en": "Therefore, strict regulations may lead to a loss of international competitiveness, which could also negatively affect economic growth."
+      },
+      {
+        "cue": "理由2",
+        "hint": "適切な規制が難しい",
+        "ja": "次に、政府がAIを適切に規制することは難しいです。",
+        "en": "Secondly, it is difficult for governments to regulate AI properly."
+      },
+      {
+        "cue": "補足2",
+        "hint": "技術は法律より速く進化",
+        "ja": "技術は法律より速く進化することが多いため、悪意のある人に悪用される抜け穴は常に残ります。",
+        "en": "Technology often evolves faster than laws, so there will always be loopholes that can be abused by people with malicious intent."
+      },
+      {
+        "cue": "結果2",
+        "hint": "過度な規制の逆効果",
+        "ja": "その結果、過度な規制は意図せずさらに深刻な問題を引き起こす可能性があります。",
+        "en": "As a result, excessive regulations may unintentionally cause even more serious problems."
+      },
+      {
+        "cue": "結論",
+        "hint": "より厳しい規制に反対",
+        "ja": "以上の理由から、政府はAI開発により厳しい規制を実施すべきではないと強く思います。",
+        "en": "For these reasons, I strongly believe that governments should not implement stricter regulations on artificial intelligence development."
+      }
+    ]
+  },
+  {
+    "id": "personal_data_yes",
+    "topicId": "personal_data",
+    "category": "Technology / Modern Society",
+    "title": "Should private companies be allowed to collect and sell personal data?",
+    "stance": "Yes",
+    "lines": [
+      {
+        "cue": "主張",
+        "hint": "YES：収集・販売を許可",
+        "ja": "民間企業は個人データの収集と販売を許可されるべきだと思います。",
+        "en": "I agree with the statement that private companies should be allowed to collect and sell personal data."
+      },
+      {
+        "cue": "導入",
+        "hint": "理由は2つ",
+        "ja": "理由は主に2つあります。",
+        "en": "There are two main reasons for this."
+      },
+      {
+        "cue": "理由1",
+        "hint": "効率向上",
+        "ja": "まず、特定のサービスのために企業と個人データを共有することは、全体的な効率を高めます。",
+        "en": "Firstly, sharing personal data with companies for certain services can improve overall efficiency."
+      },
+      {
+        "cue": "具体例1",
+        "hint": "好みに基づくおすすめ",
+        "ja": "例えば、企業はユーザーの好みや行動に基づいて、より個人化されたおすすめを提供できます。",
+        "en": "For example, companies can provide more personalized recommendations based on users' preferences and behaviors."
+      },
+      {
+        "cue": "結果1",
+        "hint": "時間節約・便利なサービス",
+        "ja": "その結果、人々は時間を節約し、より便利なサービスを利用し、自分のニーズに合う商品を見つけられるかもしれません。",
+        "en": "As a result, people may save time, enjoy more convenient services, or discover products that better suit their needs."
+      },
+      {
+        "cue": "理由2",
+        "hint": "利益→商品・サービス改善",
+        "ja": "次に、企業は消費者の好みのデータを販売することで利益を得られ、それが商品やサービスの改善につながります。",
+        "en": "Secondly, companies can make profits by selling consumer preference data, which can lead to improvements in their products and services."
+      },
+      {
+        "cue": "具体例2",
+        "hint": "年齢・性別・購買行動",
+        "ja": "例えば、年齢層、性別、購買行動に基づく傾向分析は、企業が顧客のニーズをよりよく理解する助けになります。",
+        "en": "For example, analyzing trends based on age groups, gender, or purchasing behavior may help businesses better understand customers' needs."
+      },
+      {
+        "cue": "結果2",
+        "hint": "消費者にも有益",
+        "ja": "その結果、企業は消費者にも有益な、より効果的で便利なサービスを提供できるかもしれません。",
+        "en": "As a consequence, companies may provide more effective and convenient services that are also beneficial to consumers."
+      },
+      {
+        "cue": "結論",
+        "hint": "企業と顧客双方に利益",
+        "ja": "以上の理由から、民間企業は企業と顧客双方に利益がある形で個人データを収集・販売することを許可されるべきだと強く思います。",
+        "en": "For these reasons, I strongly believe that private companies should be allowed to collect and sell personal data in ways that are beneficial for both businesses and customers."
+      }
+    ]
+  },
+  {
+    "id": "personal_data_no",
+    "topicId": "personal_data",
+    "category": "Technology / Modern Society",
+    "title": "Should private companies be allowed to collect and sell personal data?",
+    "stance": "No",
+    "lines": [
+      {
+        "cue": "主張",
+        "hint": "NO：許可すべきでない",
+        "ja": "民間企業が個人データを収集・販売することを許可されるべきではないと思います。",
+        "en": "I disagree with the statement that private companies should be allowed to collect and sell personal data."
+      },
+      {
+        "cue": "導入",
+        "hint": "理由は2つ",
+        "ja": "理由は主に2つあります。",
+        "en": "There are two main reasons for this."
+      },
+      {
+        "cue": "理由1",
+        "hint": "倫理的懸念",
+        "ja": "まず、企業自身の利益のために個人データを販売することは、深刻な倫理的懸念を引き起こします。",
+        "en": "Firstly, selling personal data for companies' own profit would raise serious ethical concerns."
+      },
+      {
+        "cue": "補足1",
+        "hint": "共有＝悪用許可ではない",
+        "ja": "人々は利便性のために個人データを企業と共有するかもしれませんが、共有したからといって企業が自分たちの利益のために悪用してよいわけではありません。",
+        "en": "People may share their personal data with companies for convenience, but just because they share it does not mean companies should be allowed to misuse it for their own benefit."
+      },
+      {
+        "cue": "締め1",
+        "hint": "個人データは個人のもの",
+        "ja": "個人データは企業ではなく個人に属するものです。",
+        "en": "Personal data belongs to individuals, not to companies."
+      },
+      {
+        "cue": "理由2",
+        "hint": "犯罪リスク",
+        "ja": "次に、個人データには機密情報が含まれるため、それを収集・販売することは犯罪リスクを高める可能性があります。",
+        "en": "Secondly, personal data contains sensitive information, so collecting and selling it may increase the risk of crimes."
+      },
+      {
+        "cue": "具体例2",
+        "hint": "漏洩→犯罪利用",
+        "ja": "そのような情報が漏洩すれば、悪意のある人々によって犯罪行為に使われる可能性があります。",
+        "en": "If such information leaks out, it could be used for criminal activities by people with malicious intent."
+      },
+      {
+        "cue": "締め2",
+        "hint": "慎重に扱うべき",
+        "ja": "したがって、企業は個人データを価値ある情報として慎重に扱い、自社の利益のために悪用したり販売したりすべきではありません。",
+        "en": "Therefore, companies must treat personal data carefully as valuable information and should not misuse or sell it for their own benefit."
+      },
+      {
+        "cue": "結論",
+        "hint": "利益目的の搾取に反対",
+        "ja": "以上の理由から、民間企業は自社の利益だけのために個人データを利用することを許可されるべきではないと強く思います。",
+        "en": "For these reasons, I strongly believe that private companies should not be allowed to exploit personal data just for their own benefit."
+      }
+    ]
+  },
+  {
+    "id": "school_refusal_yes",
+    "topicId": "school_refusal",
+    "category": "Education",
+    "title": "Should school refusal be considered a social issue?",
+    "stance": "Yes",
+    "lines": [
+        {
+            "cue": "主張",
+            "hint": "YES：社会問題として考えるべき",
+            "ja": "不登校は社会問題として考えられるべきだと思います。",
+            "en": "I agree with the statement that school refusal should be considered a social issue."
+        },
+        {
+            "cue": "導入",
+            "hint": "理由は2つ",
+            "ja": "理由は主に2つあります。",
+            "en": "There are two main reasons for this."
+        },
+        {
+            "cue": "理由1",
+            "hint": "不登校の生徒が増えている",
+            "ja": "まず、不登校の生徒の数は近年増加しています。",
+            "en": "Firstly, the number of students who refuse to attend school has been increasing in recent years."
+        },
+        {
+            "cue": "説明1",
+            "hint": "教育制度がニーズに合っていない可能性",
+            "ja": "同じ問題に直面する生徒がどんどん増えているなら、現在の教育制度が彼らのニーズに合っていないことを意味するかもしれません。",
+            "en": "If more and more students are facing the same problem, it may mean that the current education system is not meeting their needs."
+        },
+        {
+            "cue": "締め1",
+            "hint": "社会がもっと真剣に考えるべき",
+            "ja": "したがって、社会はこの問題をもっと真剣に受け止めるべきです。",
+            "en": "Therefore, society should take this issue more seriously."
+        },
+        {
+            "cue": "理由2",
+            "hint": "社会全体に影響",
+            "ja": "次に、不登校は社会全体に影響を与える可能性があります。",
+            "en": "Secondly, school refusal can affect society as a whole."
+        },
+        {
+            "cue": "説明2",
+            "hint": "将来の貢献を失う",
+            "ja": "もしこれらの生徒が能力を十分に伸ばせなければ、社会は彼らの将来の貢献を失うかもしれません。",
+            "en": "If these students cannot fully develop their abilities, society may lose their future contributions."
+        },
+        {
+            "cue": "解決策",
+            "hint": "柔軟な学校の選択肢",
+            "ja": "一つの解決策は、より柔軟な学校の選択肢を提供することです。",
+            "en": "One solution is offering more flexible school options."
+        },
+        {
+            "cue": "具体例",
+            "hint": "午後から始まる授業",
+            "ja": "例えば、朝早く起きるのが苦手な生徒のために、午後から始まる授業を提供することができます。",
+            "en": "For example, schools could offer classes that start in the afternoon for students who struggle with early mornings."
+        },
+        {
+            "cue": "補足",
+            "hint": "教師への支援・負担増加",
+            "ja": "さらに、教師の仕事量は増えているため、教師への支援も必要です。",
+            "en": "In addition, teachers need more support because their workload has been increasing."
+        },
+        {
+            "cue": "結論",
+            "hint": "社会問題として考えるべき",
+            "ja": "以上の理由から、不登校は社会問題として考えられるべきだと思います。",
+            "en": "For these reasons, I believe that school refusal should be considered a social issue."
+        }
+    ]
+},
+  {
+    "id": "school_refusal_no",
+    "topicId": "school_refusal",
+    "category": "Education",
+    "title": "Should school refusal be considered a social issue?",
+    "stance": "No",
+    "lines": [
+        {
+            "cue": "主張",
+            "hint": "NO：社会問題として考えるべきではない",
+            "ja": "不登校は社会問題として考えられるべきではないと思います。",
+            "en": "I disagree with the statement that school refusal should be considered a social issue."
+        },
+        {
+            "cue": "導入",
+            "hint": "理由は2つ",
+            "ja": "理由は主に2つあります。",
+            "en": "There are two main reasons for this."
+        },
+        {
+            "cue": "理由1",
+            "hint": "理由は生徒によって異なる",
+            "ja": "まず、不登校の理由は生徒によって異なります。",
+            "en": "Firstly, the reasons behind school refusal differ from student to student."
+        },
+        {
+            "cue": "具体例1",
+            "hint": "発達障害・家庭問題・不安",
+            "ja": "発達障害がある生徒もいれば、家庭の問題や不安に苦しんでいる生徒もいます。",
+            "en": "Some students may have developmental disorders, while others may struggle with family problems or anxiety."
+        },
+        {
+            "cue": "説明1",
+            "hint": "一括りにすると個別のニーズを見落とす",
+            "ja": "それぞれの状況は異なるため、すべてを同じ社会問題として扱うと、個別のニーズを見落とす可能性があります。",
+            "en": "Because each situation is unique, treating all cases as the same social problem could overlook individual needs."
+        },
+        {
+            "cue": "理由2",
+            "hint": "一律の対策より個別支援",
+            "ja": "次に、生徒には幅広い社会的対策よりも個別の支援が必要です。",
+            "en": "Secondly, students need individualized support rather than broad social measures."
+        },
+        {
+            "cue": "具体策",
+            "hint": "教師・保護者・専門家が協力",
+            "ja": "教師、保護者、専門家が協力して、それぞれの生徒のニーズを理解し、最善の解決策を見つけるべきです。",
+            "en": "Teachers, parents, and specialists should work together to understand each student's needs and find the best solution for them."
+        },
+        {
+            "cue": "効果",
+            "hint": "理解される→安心感→助けを求めやすい",
+            "ja": "生徒が理解され支えられていると感じれば、安心感を持ち、必要なときに助けを求めやすくなります。",
+            "en": "When students feel understood and supported, they are more likely to develop a sense of security and seek help when they need it."
+        },
+        {
+            "cue": "結論",
+            "hint": "社会問題として考えるべきではない",
+            "ja": "以上の理由から、不登校は社会問題として考えられるべきではないと思います。",
+            "en": "For these reasons, I do not believe that school refusal should be considered a social issue."
+        }
+    ]
+},
+  {
+    "id": "traditional_culture_yes",
+    "topicId": "traditional_culture",
+    "category": "Culture",
+    "title": "Should traditional cultural practices be preserved?",
+    "stance": "Yes",
+    "lines": [
+        {
+            "cue": "主張",
+            "hint": "YES：伝統文化は保存されるべき",
+            "ja": "伝統的な文化的慣習は保存されるべきだと思います。",
+            "en": "I agree with the statement that traditional cultural practices should be preserved."
+        },
+        {
+            "cue": "導入",
+            "hint": "理由は2つ",
+            "ja": "理由は主に2つあります。",
+            "en": "There are two main reasons for this."
+        },
+        {
+            "cue": "理由1",
+            "hint": "国民的アイデンティティを強める",
+            "ja": "まず、伝統を守ることは国民的アイデンティティを強めます。",
+            "en": "Firstly, preserving traditions strengthens our national identity."
+        },
+        {
+            "cue": "説明1",
+            "hint": "歴史を思い出し、世代をつなぐ",
+            "ja": "伝統的な祭りや儀式は、共有された歴史を思い出させ、異なる世代を結びつけます。",
+            "en": "Traditional festivals and ceremonies remind us of our shared history and bring different generations together."
+        },
+        {
+            "cue": "結果1",
+            "hint": "誇りと所属意識",
+            "ja": "その結果、人々はより強い誇りと所属意識を持つようになります。",
+            "en": "As a result, people develop a stronger sense of pride and belonging."
+        },
+        {
+            "cue": "具体例1",
+            "hint": "花見・世代を超えて受け継がれた習慣",
+            "ja": "例えば、花見のような行事によって、人々は何世代にもわたって受け継がれてきた習慣を大切にできます。",
+            "en": "For example, events such as hanami allow people to appreciate customs that have been passed down for generations."
+        },
+        {
+            "cue": "理由2",
+            "hint": "地域経済を支える",
+            "ja": "次に、伝統的な文化的慣習は地域経済を支えます。",
+            "en": "Secondly, traditional cultural practices support local economies."
+        },
+        {
+            "cue": "説明2",
+            "hint": "観光客を集め、地域訪問を促す",
+            "ja": "多くの伝統行事は観光客を引きつけ、人々が地域を訪れるきっかけになります。",
+            "en": "Many traditional events attract tourists and encourage people to visit local areas."
+        },
+        {
+            "cue": "結果2",
+            "hint": "飲食店・ホテル・土産物店に利益",
+            "ja": "その結果、飲食店、ホテル、土産物店などの地域の店が、支出の増加によって利益を得られます。",
+            "en": "As a result, local businesses such as restaurants, hotels, and souvenir shops can benefit from increased spending."
+        },
+        {
+            "cue": "補足2",
+            "hint": "地域文化を広める",
+            "ja": "さらに、これらの行事は地域文化をより広い人々に広める助けにもなります。",
+            "en": "In addition, these events help promote local culture to a wider audience."
+        },
+        {
+            "cue": "結論",
+            "hint": "保存されるべき",
+            "ja": "以上の理由から、伝統的な文化的慣習は保存されるべきだと思います。",
+            "en": "For these reasons, I believe that traditional cultural practices should be preserved."
+        }
+    ]
+},
+  {
+    "id": "traditional_culture_no",
+    "topicId": "traditional_culture",
+    "category": "Culture",
+    "title": "Should traditional cultural practices be preserved?",
+    "stance": "No",
+    "lines": [
+        {
+            "cue": "主張",
+            "hint": "NO：必ずしも保存されるべきではない",
+            "ja": "伝統的な文化的慣習は保存されるべきだとは思いません。",
+            "en": "I disagree with the statement that traditional cultural practices should be preserved."
+        },
+        {
+            "cue": "導入",
+            "hint": "理由は2つ",
+            "ja": "理由は主に2つあります。",
+            "en": "There are two main reasons for this."
+        },
+        {
+            "cue": "理由1",
+            "hint": "保存には費用がかかる",
+            "ja": "まず、伝統を保存するには費用がかかる場合があります。",
+            "en": "Firstly, preserving traditions can be expensive."
+        },
+        {
+            "cue": "説明1",
+            "hint": "自治体・地域の財政支援",
+            "ja": "多くの伝統行事は、地方自治体や地域社会からの財政支援を必要とします。",
+            "en": "Many traditional events require financial support from local governments and communities."
+        },
+        {
+            "cue": "結果1",
+            "hint": "現代社会に合わない慣習への支出",
+            "ja": "その結果、現代社会にもう合わない慣習を維持するために、多額のお金が使われるかもしれません。",
+            "en": "As a result, a large amount of money may be spent on maintaining customs that are no longer relevant to modern society."
+        },
+        {
+            "cue": "代替案",
+            "hint": "教育・医療などの公共サービス",
+            "ja": "そのお金は代わりに、教育や医療のような重要な公共サービスに使うことができます。",
+            "en": "This money could instead be used for important public services such as education and healthcare."
+        },
+        {
+            "cue": "理由2",
+            "hint": "社会の変化を妨げる",
+            "ja": "次に、一部の伝統は社会が変化に適応するのを妨げる可能性があります。",
+            "en": "Secondly, some traditions may prevent society from adapting to change."
+        },
+        {
+            "cue": "説明2",
+            "hint": "価値観と生活様式の変化",
+            "ja": "社会が発展するにつれて、人々の価値観や生活様式も変化します。",
+            "en": "As society evolves, people’s values and lifestyles also change."
+        },
+        {
+            "cue": "具体例2",
+            "hint": "新しい考えを妨げる・一部の人を排除する",
+            "ja": "しかし、特定の伝統的慣習は新しい考えを妨げたり、一部の人々を排除したりするかもしれません。",
+            "en": "However, certain traditional practices may discourage new ideas or exclude some groups of people."
+        },
+        {
+            "cue": "締め2",
+            "hint": "現代社会のニーズを重視",
+            "ja": "したがって、現代社会のニーズを反映した慣習に焦点を当てることが重要です。",
+            "en": "Therefore, it is important to focus on practices that reflect the needs of modern society."
+        },
+        {
+            "cue": "結論",
+            "hint": "必ずしも保存されるべきではない",
+            "ja": "以上の理由から、伝統的な文化的慣習は必ずしも保存されるべきではないと思います。",
+            "en": "For these reasons, I believe that traditional cultural practices should not necessarily be preserved."
+        }
+    ]
+},
+
+  {
+    "id": "social_media_yes",
+    "topicId": "social_media",
+    "category": "Education",
+    "title": "Should students have restrictions on their use of social media?",
+    "stance": "Yes",
+    "lines": [
+      {
+        "cue": "主張",
+        "hint": "YES：SNS利用に制限",
+        "ja": "生徒のSNS利用には制限があるべきだと思います。",
+        "en": "I agree with the statement that students should have restrictions on their use of social media."
+      },
+      {
+        "cue": "導入",
+        "hint": "理由は2つ",
+        "ja": "理由は主に2つあります。",
+        "en": "There are two main reasons for this."
+      },
+      {
+        "cue": "理由1",
+        "hint": "危険な求人にさらされる",
+        "ja": "まず、SNSは生徒を怪しいアルバイトのような危険な機会にさらす可能性があります。",
+        "en": "Firstly, social media can expose students to dangerous opportunities such as shady part-time jobs."
+      },
+      {
+        "cue": "説明1",
+        "hint": "高収入・簡単な仕事を装う悪意ある広告",
+        "ja": "SNS上の広告の中には、悪意のある人々によって作られ、異常に高い報酬や簡単な仕事を約束するものがあります。",
+        "en": "Some ads on social media are created by people with malicious intent and promise unusually high pay or easy work."
+      },
+      {
+        "cue": "補足1",
+        "hint": "生徒はリスク判断が未熟",
+        "ja": "生徒は必ずしもこれらの誘いを適切に判断できるほど成熟していないため、関わるリスクに気づかないかもしれません。",
+        "en": "Students are not always mature enough to judge these offers properly, so they may not realize the risks involved."
+      },
+      {
+        "cue": "具体例1",
+        "hint": "未成年が犯罪に関わるニュース",
+        "ja": "実際に、そのような広告に応じた未成年が重犯罪に関わったというニュースを見たことがあります。",
+        "en": "In fact, I have seen news reports about minors getting involved in felonies after responding to such advertisements."
+      },
+      {
+        "cue": "締め1",
+        "hint": "接触機会を減らす",
+        "ja": "SNS利用を制限することで、生徒がこうした危険な誘いに触れる機会を減らせるかもしれません。",
+        "en": "Limiting social media use could help reduce students’ exposure to these risky offers."
+      },
+      {
+        "cue": "理由2",
+        "hint": "ネットいじめを助長",
+        "ja": "次に、SNSはネットいじめを助長する可能性があります。",
+        "en": "Secondly, social media can encourage cyberbullying."
+      },
+      {
+        "cue": "説明2",
+        "hint": "見えにくく、心に深刻な害",
+        "ja": "SNS上のいじめは気づかれないまま行われることが多く、生徒のメンタルヘルスに深刻な害を与える可能性があります。",
+        "en": "Bullying on social media is often done unnoticed, and it can seriously harm students’ mental health."
+      },
+      {
+        "cue": "補足2",
+        "hint": "匿名だと行き過ぎる",
+        "ja": "人は匿名だと思うと、対面では決して言わないようなことまで言ってしまうことがあります。",
+        "en": "When people think they are anonymous, they sometimes go too far and say things they would never say face to face."
+      },
+      {
+        "cue": "締め2",
+        "hint": "監督や厳格なルールが必要",
+        "ja": "したがって、生徒にとってより安全なオンライン環境を作るには、ある程度の監督やより厳しいルールが必要かもしれません。",
+        "en": "Therefore, some form of oversight or stricter rules may be necessary to create a safer online environment for students."
+      },
+      {
+        "cue": "結論",
+        "hint": "SNS利用に制限",
+        "ja": "以上の理由から、生徒のSNS利用には制限があるべきだと思います。",
+        "en": "For these reasons, I believe that students should have restrictions on their use of social media."
+      }
+    ]
+  },
+  {
+    "id": "social_media_no",
+    "topicId": "social_media",
+    "category": "Education",
+    "title": "Should students have restrictions on their use of social media?",
+    "stance": "No",
+    "lines": [
+      {
+        "cue": "主張",
+        "hint": "NO：制限すべきではない",
+        "ja": "生徒のSNS利用に制限を設けるべきではないと思います。",
+        "en": "I disagree with the statement that students should have restrictions on their use of social media."
+      },
+      {
+        "cue": "導入",
+        "hint": "理由は2つ",
+        "ja": "理由は主に2つあります。",
+        "en": "There are two main reasons for this."
+      },
+      {
+        "cue": "理由1",
+        "hint": "教育ツールとして有益",
+        "ja": "まず、SNSは有益な教育ツールになり得ます。",
+        "en": "Firstly, social media can be a valuable educational tool."
+      },
+      {
+        "cue": "説明1",
+        "hint": "情報・無料講義・教育動画にアクセス",
+        "ja": "生徒はSNSを通じて、有用な情報、無料講義、教育動画に簡単にアクセスできます。",
+        "en": "Students can easily access useful information, free lectures, and educational videos through social media platforms."
+      },
+      {
+        "cue": "補足1",
+        "hint": "同じ関心を持つ人と交流",
+        "ja": "また、同じ関心を持つ人々とつながり、意見を交換することもできます。",
+        "en": "They can also connect with people who share the same interests and exchange ideas."
+      },
+      {
+        "cue": "結果1",
+        "hint": "知識を広げ、自主学習を支える",
+        "ja": "その結果、SNSは知識を広げ、自主的な学習を支えることができます。",
+        "en": "As a result, social media can broaden their knowledge and support independent learning."
+      },
+      {
+        "cue": "理由2",
+        "hint": "根本原因に対処しない",
+        "ja": "次に、SNS利用の制限は、ネットいじめや怪しい求人のような問題の根本原因に対処しません。",
+        "en": "Secondly, restricting social media use does not address the root causes of problems such as cyberbullying and shady job offers."
+      },
+      {
+        "cue": "説明2",
+        "hint": "他のサイトやアプリでもリスクはある",
+        "ja": "たとえアクセスを制限しても、生徒は他のウェブサイトやメッセージアプリを通じて、同じようなリスクに遭遇するかもしれません。",
+        "en": "Even if access is limited, students may still encounter these risks through other websites or messaging apps."
+      },
+      {
+        "cue": "代替案",
+        "hint": "責任ある使い方と危険の見分け方を教える",
+        "ja": "制限を課す代わりに、学校や保護者はSNSを責任を持って使い、潜在的な危険を見分ける方法を教えるべきです。",
+        "en": "Instead of imposing restrictions, schools and parents should teach students how to use social media responsibly and recognize potential dangers."
+      },
+      {
+        "cue": "結論",
+        "hint": "SNS利用を制限すべきではない",
+        "ja": "以上の理由から、生徒のSNS利用に制限を設けるべきではないと思います。",
+        "en": "For these reasons, I believe that students should not have restrictions on their use of social media."
+      }
+    ]
+  },
+  {
+    "id": "economic_growth_sustainability_yes",
+    "topicId": "economic_growth_sustainability",
+    "category": "Environment",
+    "title": "Can economic growth be achieved without sacrificing environmental sustainability?",
+    "stance": "Yes",
+    "lines": [
+      {
+        "cue": "主張",
+        "hint": "YES：両立できる",
+        "ja": "経済成長は環境の持続可能性を犠牲にせずに達成できると思います。",
+        "en": "I agree with the statement that economic growth can be achieved without sacrificing environmental sustainability."
+      },
+      {
+        "cue": "導入",
+        "hint": "理由は2つ",
+        "ja": "理由は主に2つあります。",
+        "en": "There are two main reasons for this."
+      },
+      {
+        "cue": "理由1",
+        "hint": "技術革新で環境負荷を減らす",
+        "ja": "まず、技術革新によって、経済成長を維持しながら環境へのダメージを減らすことが可能になります。",
+        "en": "Firstly, technological innovation makes it possible to reduce environmental damage while maintaining economic growth."
+      },
+      {
+        "cue": "譲歩",
+        "hint": "工業化はある程度の汚染を伴う",
+        "ja": "工業化はある程度の汚染を避けられないかもしれませんが、先進技術はその影響を最小限にできます。",
+        "en": "While industrialization may inevitably cause some pollution, advanced technologies can minimize its impact."
+      },
+      {
+        "cue": "具体例1",
+        "hint": "再生可能エネルギー投資",
+        "ja": "例えば、太陽光や風力のような再生可能エネルギーへの投資は、炭素排出を減らしながら雇用を生み、経済活動を刺激できます。",
+        "en": "For example, investing in renewable energy such as solar and wind power can create jobs and stimulate economic activity while reducing carbon emissions."
+      },
+      {
+        "cue": "理由2",
+        "hint": "環境に配慮した政策が投資を引きつける",
+        "ja": "次に、環境に配慮した政策は投資を引きつけることができます。",
+        "en": "Secondly, environmentally responsible policies can attract investment."
+      },
+      {
+        "cue": "説明2",
+        "hint": "持続可能性を重視する企業は安定的で先進的",
+        "ja": "今日、多くの投資家は持続可能性を重視する企業を好みます。なぜなら、そのような企業はより安定していて先を見据えていると見なされることが多いからです。",
+        "en": "Today, many investors prefer companies that prioritize sustainability because they are often seen as more stable and forward-looking."
+      },
+      {
+        "cue": "結果2",
+        "hint": "グリーン化が長期成長を支える",
+        "ja": "その結果、環境に配慮することは投資を促し、長期的な経済成長を支えることができます。",
+        "en": "As a result, going green can encourage investment and support long-term economic growth."
+      },
+      {
+        "cue": "結論",
+        "hint": "経済成長と持続可能性は両立",
+        "ja": "以上の理由から、経済成長と環境の持続可能性は両立できると思います。",
+        "en": "For these reasons, I believe that economic growth and environmental sustainability can go hand in hand."
+      }
+    ]
+  },
+  {
+    "id": "economic_growth_sustainability_no",
+    "topicId": "economic_growth_sustainability",
+    "category": "Environment",
+    "title": "Can economic growth be achieved without sacrificing environmental sustainability?",
+    "stance": "No",
+    "lines": [
+      {
+        "cue": "主張",
+        "hint": "NO：犠牲なしでは難しい",
+        "ja": "経済成長は環境の持続可能性を犠牲にせずには達成できないと思います。",
+        "en": "I disagree with the statement that economic growth can be achieved without sacrificing environmental sustainability."
+      },
+      {
+        "cue": "導入",
+        "hint": "理由は2つ",
+        "ja": "理由は主に2つあります。",
+        "en": "There are two main reasons for this."
+      },
+      {
+        "cue": "理由1",
+        "hint": "発展初期には環境負荷が避けられない",
+        "ja": "まず、経済発展の初期段階では、ある程度の環境ダメージは避けられません。",
+        "en": "Firstly, some environmental damage is unavoidable during the early stages of economic development."
+      },
+      {
+        "cue": "説明1",
+        "hint": "工場・インフラ・交通が必要",
+        "ja": "発展途上国は生活水準を向上させるために、工場、インフラ、交通システムを必要としており、これらの活動はしばしば汚染を生みます。",
+        "en": "Developing countries need factories, infrastructure, and transportation systems to improve living standards, and these activities often generate pollution."
+      },
+      {
+        "cue": "締め1",
+        "hint": "ある程度の犠牲は必要",
+        "ja": "したがって、ある程度の環境面での犠牲は必要かもしれません。",
+        "en": "Therefore, some degree of environmental sacrifice may be necessary."
+      },
+      {
+        "cue": "理由2",
+        "hint": "同じ環境基準を求めるのは不公平",
+        "ja": "次に、発展途上国に先進国と同じ環境基準を求めるのは不公平です。",
+        "en": "Secondly, it is unfair to expect developing countries to follow the same environmental standards as developed countries."
+      },
+      {
+        "cue": "説明2",
+        "hint": "先進国は工業化で豊かになり歴史的汚染に責任",
+        "ja": "多くの先進国は工業化によって豊かになり、歴史的な汚染の大きな部分に責任があります。",
+        "en": "Many developed countries became wealthy through industrialization and were responsible for a large share of historical pollution."
+      },
+      {
+        "cue": "締め2",
+        "hint": "高コスト対策の前に成長の機会",
+        "ja": "発展途上国にも、高コストな環境対策を求められる前に、経済成長を達成する機会があるべきです。",
+        "en": "Developing countries should also have the opportunity to achieve economic growth before being required to adopt costly environmental measures."
+      },
+      {
+        "cue": "結論",
+        "hint": "持続可能性の一部は犠牲になる",
+        "ja": "以上の理由から、経済成長を達成するには、環境の持続可能性の一部は犠牲にされなければならないと思います。",
+        "en": "For these reasons, I believe that some environmental sustainability must be sacrificed in order to achieve economic growth."
+      }
+    ]
+  },
+  {
+    "id": "technology_environment_yes",
+    "topicId": "technology_environment",
+    "category": "Environment",
+    "title": "Can technology solve environmental problems?",
+    "stance": "Yes",
+    "lines": [
+      {
+        "cue": "主張",
+        "hint": "YES：技術で解決できる",
+        "ja": "技術は環境問題を解決できると思います。",
+        "en": "I agree with the statement that technology can solve environmental problems."
+      },
+      {
+        "cue": "導入",
+        "hint": "理由は2つ",
+        "ja": "理由は主に2つあります。",
+        "en": "There are two main reasons for this."
+      },
+      {
+        "cue": "理由1",
+        "hint": "温室効果ガスを減らす",
+        "ja": "まず、技術は温室効果ガスの排出を減らすことができます。",
+        "en": "Firstly, technology can reduce greenhouse gas emissions."
+      },
+      {
+        "cue": "具体例1",
+        "hint": "太陽光・風力が化石燃料に代わる",
+        "ja": "例えば、太陽光や風力のような再生可能エネルギーは化石燃料に代わり、気候変動を遅らせる助けになります。",
+        "en": "For example, renewable energy sources such as solar and wind power can replace fossil fuels and help slow climate change."
+      },
+      {
+        "cue": "補足1",
+        "hint": "効率化・低価格化",
+        "ja": "さらに、新しい技術によって、これらのエネルギー源はより効率的で手頃な価格になっています。",
+        "en": "In addition, new technologies are making these energy sources more efficient and affordable."
+      },
+      {
+        "cue": "結果1",
+        "hint": "導入拡大→炭素排出減",
+        "ja": "その結果、より多くの国や企業がクリーンエネルギーを導入し、炭素排出が減る可能性があります。",
+        "en": "As a result, more countries and businesses may adopt clean energy, leading to lower carbon emissions."
+      },
+      {
+        "cue": "理由2",
+        "hint": "食料生産を持続可能にする",
+        "ja": "次に、技術は食料生産をより持続可能にできます。",
+        "en": "Secondly, technology can make food production more sustainable."
+      },
+      {
+        "cue": "具体例2",
+        "hint": "GMO作物で農地拡大を抑える",
+        "ja": "例えば、GMO作物は追加の農地の必要性を減らしながら、農業生産性を高めることができます。",
+        "en": "For example, GMO crops can increase agricultural productivity while reducing the need for additional farmland."
+      },
+      {
+        "cue": "具体例3",
+        "hint": "代替肉でメタン・森林破壊を減らす",
+        "ja": "さらに、植物由来の肉製品は、家畜からのメタン排出や農地拡大による森林破壊を減らす助けになるかもしれません。",
+        "en": "Furthermore, plant-based meat products may help reduce methane emissions from livestock and decrease deforestation caused by agricultural expansion."
+      },
+      {
+        "cue": "結果2",
+        "hint": "人口増加に対応しつつ環境に優しく",
+        "ja": "その結果、増加する人口の需要を満たしながら、食料生産をより環境に優しいものにできます。",
+        "en": "As a result, food production can become more environmentally friendly while still meeting the needs of a growing population."
+      },
+      {
+        "cue": "結論",
+        "hint": "技術は重要な役割を果たす",
+        "ja": "以上の理由から、技術は環境問題を解決する上で重要な役割を果たせると思います。",
+        "en": "For these reasons, I believe that technology can play a key role in solving environmental problems."
+      }
+    ]
+  },
+  {
+    "id": "technology_environment_no",
+    "topicId": "technology_environment",
+    "category": "Environment",
+    "title": "Can technology solve environmental problems?",
+    "stance": "No",
+    "lines": [
+      {
+        "cue": "主張",
+        "hint": "NO：技術だけでは解決できない",
+        "ja": "技術が環境問題を解決できるとは思いません。",
+        "en": "I disagree with the statement that technology can solve environmental problems."
+      },
+      {
+        "cue": "導入",
+        "hint": "理由は2つ",
+        "ja": "理由は主に2つあります。",
+        "en": "There are two main reasons for this."
+      },
+      {
+        "cue": "理由1",
+        "hint": "原因は技術不足ではなく人間の行動",
+        "ja": "まず、環境問題は技術不足ではなく、人間の行動によって引き起こされることが多いです。",
+        "en": "Firstly, environmental problems are often caused by human behavior rather than a lack of technology."
+      },
+      {
+        "cue": "具体例1",
+        "hint": "環境配慮の選択肢があっても過剰消費",
+        "ja": "例えば、環境に優しい代替手段があるにもかかわらず、多くの人は資源を過剰に消費し、大量の廃棄物を出し続けています。",
+        "en": "For example, many people continue to overconsume resources and generate large amounts of waste even when environmentally friendly alternatives are available."
+      },
+      {
+        "cue": "結果1",
+        "hint": "生活習慣を変えなければ続く",
+        "ja": "その結果、人々が生活様式や消費習慣を変えない限り、環境破壊は続くかもしれません。",
+        "en": "As a result, environmental damage may continue unless people change their lifestyles and consumption habits."
+      },
+      {
+        "cue": "理由2",
+        "hint": "新技術が新たな課題を生む",
+        "ja": "次に、新しい技術は時にさらなる環境問題を生み出すことがあります。",
+        "en": "Secondly, new technologies can sometimes create additional environmental challenges."
+      },
+      {
+        "cue": "具体例2",
+        "hint": "EVや再エネ設備に原材料とエネルギーが必要",
+        "ja": "例えば、電気自動車や再生可能エネルギー設備の生産には、大量の原材料とエネルギーが必要です。",
+        "en": "For example, producing electric vehicles and renewable energy equipment requires large amounts of raw materials and energy."
+      },
+      {
+        "cue": "補足2",
+        "hint": "予測できない影響",
+        "ja": "さらに、一部の技術には、まだ十分に理解されていない予期せぬ影響があるかもしれません。",
+        "en": "In addition, some technologies may have unintended effects that are not fully understood."
+      },
+      {
+        "cue": "結果2",
+        "hint": "問題を置き換えるだけかもしれない",
+        "ja": "その結果、技術に頼りすぎると、単に一つの環境問題を別の問題に置き換えるだけになるかもしれません。",
+        "en": "As a result, relying too heavily on technology may simply replace one environmental problem with another."
+      },
+      {
+        "cue": "結論",
+        "hint": "人間の行動変化も必要",
+        "ja": "以上の理由から、技術だけでは環境問題は解決できず、人間の行動の変化も必要だと思います。",
+        "en": "For these reasons, I believe that technology alone cannot solve environmental problems and that changes in human behavior are also necessary."
+      }
+    ]
+  },
+  {
+    "id": "wealth_inequality_taxation_yes",
+    "topicId": "wealth_inequality_taxation",
+    "category": "Economy",
+    "title": "Should wealth inequality be reduced through taxation?",
+    "stance": "Yes",
+    "lines": [
+      {
+        "cue": "主張",
+        "hint": "YES：税で格差を減らす",
+        "ja": "富の格差は税制によって減らされるべきだと思います。",
+        "en": "I agree with the statement that wealth inequality should be reduced through taxation."
+      },
+      {
+        "cue": "導入",
+        "hint": "理由は2つ",
+        "ja": "理由は主に2つあります。",
+        "en": "There are two main reasons for this."
+      },
+      {
+        "cue": "理由1",
+        "hint": "社会の安定を保つ",
+        "ja": "まず、富の格差を減らすことは社会の安定を保つ助けになります。",
+        "en": "Firstly, reducing wealth inequality can help maintain social stability."
+      },
+      {
+        "cue": "説明1",
+        "hint": "格差が大きいと不公平感が高まる",
+        "ja": "貧富の差が大きくなりすぎると、人々は社会が不公平だと感じるかもしれません。",
+        "en": "When the gap between rich and poor becomes too large, people may feel that society is unfair."
+      },
+      {
+        "cue": "結果1",
+        "hint": "社会的緊張・信頼低下",
+        "ja": "その結果、社会的緊張が高まり、社会への信頼が低下する可能性があります。",
+        "en": "As a result, social tensions may increase, and trust in society may decline."
+      },
+      {
+        "cue": "具体策1",
+        "hint": "税収で公共サービスを改善",
+        "ja": "税収を使って教育、医療、インフラのような公共サービスを改善することで、社会全体が恩恵を受けられます。",
+        "en": "By using tax revenue to improve public services such as education, healthcare, and infrastructure, society as a whole can benefit."
+      },
+      {
+        "cue": "理由2",
+        "hint": "富裕層も社会から恩恵を受けている",
+        "ja": "次に、富裕層はしばしば周囲の社会から恩恵を受けています。",
+        "en": "Secondly, wealthy people often benefit from the society around them."
+      },
+      {
+        "cue": "説明2",
+        "hint": "従業員・インフラ・法制度に支えられる",
+        "ja": "彼らの成功は、従業員、公共インフラ、安定した法制度によって支えられています。",
+        "en": "Their success is supported by employees, public infrastructure, and a stable legal system."
+      },
+      {
+        "cue": "締め2",
+        "hint": "より多く持つ人が多く貢献",
+        "ja": "したがって、より大きな経済力を持つ人々が税を通じてより多く貢献するのは合理的です。",
+        "en": "Therefore, it is reasonable for people with greater financial resources to contribute more through taxation."
+      },
+      {
+        "cue": "結果2",
+        "hint": "成功を否定せず公平な社会",
+        "ja": "これは個人の成功を否定することなく、より公平な社会を作る助けになります。",
+        "en": "This can help create a fairer society without denying individual success."
+      },
+      {
+        "cue": "結論",
+        "hint": "税で格差を減らすべき",
+        "ja": "以上の理由から、富の格差は税制によって減らされるべきだと思います。",
+        "en": "For these reasons, I believe that wealth inequality should be reduced through taxation."
+      }
+    ]
+  },
+  {
+    "id": "wealth_inequality_taxation_no",
+    "topicId": "wealth_inequality_taxation",
+    "category": "Economy",
+    "title": "Should wealth inequality be reduced through taxation?",
+    "stance": "No",
+    "lines": [
+      {
+        "cue": "主張",
+        "hint": "NO：税で減らすべきではない",
+        "ja": "富の格差は税制によって減らされるべきではないと思います。",
+        "en": "I disagree with the statement that wealth inequality should be reduced through taxation."
+      },
+      {
+        "cue": "導入",
+        "hint": "理由は2つ",
+        "ja": "理由は主に2つあります。",
+        "en": "There are two main reasons for this."
+      },
+      {
+        "cue": "理由1",
+        "hint": "働く意欲を下げる",
+        "ja": "まず、過度な課税は、人々が努力して成功しようとする意欲を下げる可能性があります。",
+        "en": "Firstly, excessive taxation may reduce people’s motivation to work hard and succeed."
+      },
+      {
+        "cue": "説明1",
+        "hint": "収入の多くが税で取られる",
+        "ja": "収入の大部分が税金として取られると、自分の努力が公平に報われていないと感じる人もいるかもしれません。",
+        "en": "If a large portion of their income is taken away through taxes, some people may feel that their efforts are not being rewarded fairly."
+      },
+      {
+        "cue": "結果1",
+        "hint": "起業・リスク・革新が減る",
+        "ja": "その結果、リスクを取り、事業を始め、革新を追求しようとする人が減るかもしれません。",
+        "en": "As a result, fewer people may be willing to take risks, start businesses, or pursue innovation."
+      },
+      {
+        "cue": "締め1",
+        "hint": "長期的に経済成長を弱める",
+        "ja": "これは長期的には経済成長を弱める可能性があります。",
+        "en": "This could weaken economic growth in the long run."
+      },
+      {
+        "cue": "理由2",
+        "hint": "経済に悪影響",
+        "ja": "次に、富裕層への高い税金は経済に悪影響を与える可能性があります。",
+        "en": "Secondly, high taxes on wealthy individuals may have negative economic consequences."
+      },
+      {
+        "cue": "具体例2",
+        "hint": "低税率の国へ移る",
+        "ja": "富裕層や事業主の中には、税率の低い国へ移る人もいるかもしれません。",
+        "en": "Some wealthy people and business owners may choose to move to countries with lower tax rates."
+      },
+      {
+        "cue": "補足2",
+        "hint": "雇用創出・投資の役割",
+        "ja": "さらに、富裕層はしばしば雇用を生み出し、事業に投資しています。",
+        "en": "In addition, wealthy individuals often create jobs and invest in businesses."
+      },
+      {
+        "cue": "結果2",
+        "hint": "国外移転や投資減で雇用減",
+        "ja": "もし彼らが国外へ出たり投資を減らしたりすれば、雇用機会が減少するかもしれません。",
+        "en": "If they leave the country or invest less, employment opportunities may decline."
+      },
+      {
+        "cue": "結論",
+        "hint": "税で格差を減らすべきではない",
+        "ja": "以上の理由から、富の格差は税制によって減らされるべきではないと思います。",
+        "en": "For these reasons, I do not believe that wealth inequality should be reduced through taxation."
+      }
+    ]
+  },
+  {
+    "id": "workplace_diversity_yes",
+    "topicId": "workplace_diversity",
+    "category": "Society / Values",
+    "title": "Should workplaces do more to promote diversity?",
+    "stance": "Yes",
+    "lines": [
+      {
+        "cue": "主張",
+        "hint": "YES：多様性をもっと促進",
+        "ja": "職場は多様性をもっと促進するべきだと思います。",
+        "en": "I agree with the statement that workplaces should do more to promote diversity."
+      },
+      {
+        "cue": "導入",
+        "hint": "理由は2つ",
+        "ja": "理由は主に2つあります。",
+        "en": "There are two main reasons for this."
+      },
+      {
+        "cue": "理由1",
+        "hint": "人手不足の解決",
+        "ja": "まず、多様性を促進することは人手不足の解決に役立ちます。",
+        "en": "Firstly, promoting diversity can help solve labor shortages."
+      },
+      {
+        "cue": "説明1",
+        "hint": "高齢化社会では労働者確保が難しい",
+        "ja": "高齢化が進む国では、企業は十分な労働者を見つけるのに苦労することがよくあります。",
+        "en": "In countries with aging populations, companies often struggle to find enough workers."
+      },
+      {
+        "cue": "具体例1",
+        "hint": "外国人・女性・高齢者に開かれた職場",
+        "ja": "職場が外国人労働者、女性、高齢者など、異なる背景を持つ人々により開かれれば、より大きな労働力を確保できます。",
+        "en": "If workplaces become more open to people from different backgrounds, such as foreign workers, women, and older people, they can secure a larger workforce."
+      },
+      {
+        "cue": "結果1",
+        "hint": "企業と社会全体を支える",
+        "ja": "その結果、多様性の促進は企業だけでなく社会全体を支えることにつながります。",
+        "en": "As a result, promoting diversity can help support both businesses and society as a whole."
+      },
+      {
+        "cue": "理由2",
+        "hint": "新しい発想と革新",
+        "ja": "次に、多様性は新しい発想や革新につながります。",
+        "en": "Secondly, diversity can lead to new ideas and innovation."
+      },
+      {
+        "cue": "説明2",
+        "hint": "異なる経験と視点",
+        "ja": "異なる文化や背景を持つ人々は、異なる経験や視点を持っています。",
+        "en": "People from different cultures and backgrounds have different experiences and perspectives."
+      },
+      {
+        "cue": "具体例2",
+        "hint": "国際市場と顧客ニーズの理解",
+        "ja": "例えば、外国人労働者は企業が国際市場や異なる顧客ニーズを理解する助けになるかもしれません。",
+        "en": "For example, foreign workers may help companies understand international markets and different customer needs."
+      },
+      {
+        "cue": "締め2",
+        "hint": "創造的な解決策と多様なニーズへの対応",
+        "ja": "したがって、彼らは創造的な解決策を提案し、企業がさまざまな顧客ニーズに対応する助けになります。",
+        "en": "Therefore, they can offer creative solutions and help companies respond to various customer needs."
+      },
+      {
+        "cue": "結論",
+        "hint": "多様性をもっと促進",
+        "ja": "以上の理由から、職場は多様性をもっと促進するべきだと思います。",
+        "en": "For these reasons, I believe that workplaces should do more to promote diversity."
+      }
+    ]
+  },
+  {
+    "id": "workplace_diversity_no",
+    "topicId": "workplace_diversity",
+    "category": "Society / Values",
+    "title": "Should workplaces do more to promote diversity?",
+    "stance": "No",
+    "lines": [
+      {
+        "cue": "主張",
+        "hint": "NO：必ずしも促進すべきではない",
+        "ja": "職場は必ずしも多様性をもっと促進すべきではないと思います。",
+        "en": "I disagree with the statement that workplaces should do more to promote diversity."
+      },
+      {
+        "cue": "導入",
+        "hint": "理由は2つ",
+        "ja": "理由は主に2つあります。",
+        "en": "There are two main reasons for this."
+      },
+      {
+        "cue": "理由1",
+        "hint": "能力より背景を重視する恐れ",
+        "ja": "まず、多様性を強く促進しすぎると、企業が能力よりも人々の背景に注目しすぎるかもしれません。",
+        "en": "Firstly, promoting diversity too strongly may cause companies to focus too much on people’s backgrounds rather than their abilities."
+      },
+      {
+        "cue": "説明1",
+        "hint": "採用と昇進は能力・経験・実績に基づくべき",
+        "ja": "採用や昇進は、スキル、経験、実績に基づくべきです。",
+        "en": "Hiring and promotion should be based on skills, experience, and performance."
+      },
+      {
+        "cue": "補足1",
+        "hint": "多様性を実力より優先すると不公平感",
+        "ja": "もし企業が実力よりも多様性を優先すれば、従業員は制度が不公平だと感じるかもしれません。",
+        "en": "If companies prioritize diversity over merit, employees may feel that the system is unfair."
+      },
+      {
+        "cue": "結果1",
+        "hint": "不満を生み本来の目的に繋がらない",
+        "ja": "その結果、従業員の不満を生み、本来の目的を達成できない可能性があります。",
+        "en": "As a result, this may create frustration among employees and fail to achieve the intended goal."
+      },
+      {
+        "cue": "理由2",
+        "hint": "支援体制が不十分",
+        "ja": "次に、職場にはより大きな多様性に対応するための支援体制が十分にないかもしれません。",
+        "en": "Secondly, workplaces may not have enough support systems to handle greater diversity."
+      },
+      {
+        "cue": "説明2",
+        "hint": "言語支援・柔軟な働き方・公平な評価",
+        "ja": "異なる背景を持つ人々を受け入れるには、言語支援、柔軟な勤務形態、公平な評価制度が必要です。",
+        "en": "Accepting people from different backgrounds requires language support, flexible working arrangements, and fair evaluation systems."
+      },
+      {
+        "cue": "結果2",
+        "hint": "準備なしでは混乱・摩擦・ストレス",
+        "ja": "企業がこうした制度を準備せずに多様性を促進すれば、混乱、コミュニケーション上の問題、従業員のストレスにつながる可能性があります。",
+        "en": "If companies promote diversity without preparing these systems, it may lead to confusion, communication problems, and stress among employees."
+      },
+      {
+        "cue": "結論",
+        "hint": "必ずしも促進すべきではない",
+        "ja": "以上の理由から、職場は必ずしも多様性をもっと促進すべきではないと思います。",
+        "en": "For these reasons, I believe that workplaces should not necessarily do more to promote diversity."
+      }
+    ]
+  }
+
+
+];
+
+const categories = [
+  "Technology / Modern Society",
+  "Education",
+  "Culture",
+  "Environment",
+  "Economy",
+  "Government / Public Policy",
+  "Society / Values",
+  "Abstract Topics"
+];
+
+let category = "Technology / Modern Society";
+
+let topicId = "remote_work";
+let stance = "Yes";
+let speech = getSpeech();
+let displayMode = "jp";
+let speechIndex = 0;
+let previousAnswer = "";
+let finished = false;
+let stars = loadStars();
+let rate = 1.0;
+let availableVoices = [];
+let selectedVoiceURI = localStorage.getItem("eikenSpeechSelectedVoiceURI") || "";
+let currentReadIndex = -1;
+let playQueue = [];
+let timeLeft = 120;
+let timerInterval = null;
+let mediaRecorder = null;
+let audioChunks = [];
+let recordingUrl = null;
+let isPlayingAll = false;
+
+function getSpeech(){
+  return speeches.find(s => s.topicId === topicId && s.stance === stance) || speeches.find(s => s.topicId === topicId) || speeches[0];
+}
+function starKey(){ return "eikenSpeechStars_" + speech.id; }
+function loadStars(){ return JSON.parse(localStorage.getItem(starKey()) || "{}"); }
+function saveStars(){ localStorage.setItem(starKey(), JSON.stringify(stars)); }
+
+function refreshSpeech(){
+  stopSpeaking();
+  speech = getSpeech();
+  stars = loadStars();
+  speechIndex = 0;
+  previousAnswer = "";
+  finished = false;
+  currentReadIndex = -1;
+  updateHeader();
+  renderCompose();
+  renderSpeech();
+  renderRead();
+  renderReview();
+}
+
+function initCategories(){
+  const select = document.getElementById("categorySelect");
+  select.innerHTML = categories.map(cat => {
+    const count = new Set(speeches.filter(s => s.category === cat).map(s => s.topicId)).size;
+    const label = count ? `${cat} (${count})` : `${cat} (0)`;
+    return `<option value="${cat}">${label}</option>`;
+  }).join("");
+  select.value = category;
+}
+
+function initTopics(){
+  const select = document.getElementById("topicSelect");
+  const topics = [...new Map(speeches
+    .filter(s => s.category === category)
+    .map(s => [s.topicId, s.title])).entries()];
+
+  if(topics.length === 0){
+    select.innerHTML = `<option value="">No topics yet</option>`;
+    select.disabled = true;
+    document.getElementById("currentTopic").textContent = "No topics in this category yet";
+    document.getElementById("currentMeta").textContent = `${category} / 0 topics`;
+    return;
+  }
+
+  select.disabled = false;
+  if(!topics.some(([id]) => id === topicId)) topicId = topics[0][0];
+  select.innerHTML = topics.map(([id,title]) => `<option value="${id}">${title}</option>`).join("");
+  select.value = topicId;
+}
+
+function changeCategory(){
+  category = document.getElementById("categorySelect").value;
+  const firstTopic = speeches.find(s => s.category === category);
+  if(firstTopic){
+    topicId = firstTopic.topicId;
+    stance = "Yes";
+    initTopics();
+    refreshSpeech();
+  }else{
+    initTopics();
+  }
+}
+
+function changeTopic(){
+  topicId = document.getElementById("topicSelect").value;
+  refreshSpeech();
+}
+
+function setStance(next){
+  stance = next;
+  refreshSpeech();
+}
+
+function updateHeader(){
+  document.getElementById("currentTopic").textContent = speech.title;
+  document.getElementById("currentMeta").textContent = `${speech.category} / ${speech.stance} / ${speech.lines.length} lines`;
+  document.getElementById("yesBtn").classList.toggle("selected", stance === "Yes");
+  document.getElementById("noBtn").classList.toggle("selected", stance === "No");
+  document.getElementById("yesBtn").classList.toggle("blue", stance === "Yes");
+  document.getElementById("yesBtn").classList.toggle("white", stance !== "Yes");
+  document.getElementById("noBtn").classList.toggle("green", stance === "No");
+  document.getElementById("noBtn").classList.toggle("white", stance !== "No");
+  document.getElementById("fullText").value = speech.lines.map(l => l.en).join("\n");
+}
+
+function setPhase(phase){
+  if(phase !== "read") stopSpeaking();
+  if(phase !== "exam") stopTimer();
+  document.getElementById("homeCard").style.display = phase === "home" ? "block" : "none";
+  document.getElementById("composePanel").classList.toggle("active", phase === "compose");
+  document.getElementById("speechPanel").classList.toggle("active", phase === "speech");
+  document.getElementById("readPanel").classList.toggle("active", phase === "read");
+  document.getElementById("examPanel").classList.toggle("active", phase === "exam");
+  document.getElementById("reviewPanel").classList.toggle("active", phase === "review");
+  window.scrollTo({top:0, behavior:"smooth"});
+  if(phase === "compose") renderCompose();
+  if(phase === "speech") renderSpeech();
+  if(phase === "read") renderRead();
+  if(phase === "exam") renderExam();
+  if(phase === "review") renderReview();
+}
+
+function setDisplayMode(mode){
+  displayMode = mode;
+  document.getElementById("jpBtn").classList.toggle("active", mode === "jp");
+  document.getElementById("enBtn").classList.toggle("active", mode === "en");
+  document.getElementById("bothBtn").classList.toggle("active", mode === "both");
+  renderCompose();
+}
+
+function toggleStar(i){
+  stars[i] = !stars[i];
+  if(!stars[i]) delete stars[i];
+  saveStars();
+  renderCompose();
+  renderSpeech();
+  renderReview();
+}
+
+function toggleCurrentStar(){
+  if(finished) return;
+  toggleStar(speechIndex);
+}
+
+function renderCompose(){
+  const list = document.getElementById("composeList");
+  list.innerHTML = "";
+  speech.lines.forEach((line,i)=>{
+    const card = document.createElement("div");
+    card.className = "line-card";
+    const starClass = stars[i] ? "star on" : "star";
+    const commonTop = `
+      <div class="topline">
+        <div class="small">Line ${i+1} / ${line.cue}</div>
+        <button class="${starClass}" onclick="event.stopPropagation(); toggleStar(${i})">⭐</button>
+      </div>`;
+    if(displayMode === "jp"){
+      card.innerHTML = `${commonTop}<div class="ja">${line.ja}</div><div class="en hidden-answer">${line.en}</div><div class="small">Tap to reveal</div>`;
+      card.onclick = ()=> card.querySelector(".en").classList.toggle("hidden-answer");
+    }else if(displayMode === "en"){
+      card.innerHTML = `${commonTop}<div class="en">${line.en}</div>`;
+    }else{
+      card.innerHTML = `${commonTop}<div class="ja">${line.ja}</div><div class="en">${line.en}</div>`;
+    }
+    list.appendChild(card);
+  });
+}
+
+function renderSpeech(){
+  const main = document.getElementById("speechMain");
+  const progress = document.getElementById("speechProgress");
+  const nextBtn = document.getElementById("nextBtn");
+  const speechStar = document.getElementById("speechStar");
+
+  if(finished){
+    progress.textContent = "Finished";
+    main.innerHTML = `
+      <div class="answer-preview">${previousAnswer}</div>
+      <div class="finish">Great work! Speech completed.</div>`;
+    nextBtn.textContent = "Finish";
+    nextBtn.onclick = () => setPhase("home");
+    speechStar.className = "star";
+    return;
+  }
+
+  const line = speech.lines[speechIndex];
+  progress.textContent = `${speech.title} / ${speech.stance} / Line ${speechIndex+1} of ${speech.lines.length}`;
+  main.innerHTML = `
+    ${previousAnswer ? `<div class="answer-preview">${previousAnswer}</div>` : ""}
+    <div class="cue-label">${line.cue}</div>
+    <div class="cue-main">${line.hint}</div>`;
+  nextBtn.textContent = speechIndex === speech.lines.length - 1 ? "Show Last Answer" : "Next";
+  nextBtn.onclick = nextLine;
+  speechStar.className = stars[speechIndex] ? "star on" : "star";
+}
+
+function nextLine(){
+  if(finished){ setPhase("home"); return; }
+  previousAnswer = speech.lines[speechIndex].en;
+  if(speechIndex < speech.lines.length - 1){
+    speechIndex++;
+  }else{
+    finished = true;
+  }
+  renderSpeech();
+}
+
+function restartSpeech(){
+  speechIndex = 0;
+  previousAnswer = "";
+  finished = false;
+  renderSpeech();
+}
+
+function renderReview(){
+  const list = document.getElementById("reviewList");
+  const starred = speech.lines.map((line,i)=>({...line,i})).filter(line=>stars[line.i]);
+  if(starred.length === 0){
+    list.innerHTML = `<div class="small">⭐付きの行はまだありません。</div>`;
+    return;
+  }
+  list.innerHTML = "";
+  starred.forEach(line=>{
+    const card = document.createElement("div");
+    card.className = "line-card";
+    card.innerHTML = `
+      <div class="topline">
+        <div class="small">Line ${line.i+1} / ${line.cue}</div>
+        <button class="star on" onclick="event.stopPropagation(); toggleStar(${line.i})">⭐</button>
+      </div>
+      <div class="ja">${line.ja}</div>
+      <div class="en hidden-answer">${line.en}</div>
+      <div class="small">Tap to reveal</div>`;
+    card.onclick = ()=> card.querySelector(".en").classList.toggle("hidden-answer");
+    list.appendChild(card);
+  });
+}
+
+function setRate(nextRate){
+  rate = nextRate;
+  document.getElementById("speed06").classList.toggle("active", rate === 0.6);
+  document.getElementById("speed08").classList.toggle("active", rate === 0.8);
+  document.getElementById("speed10").classList.toggle("active", rate === 1.0);
+}
+
+function renderRead(){
+  document.getElementById("readMeta").textContent = `${speech.title} / ${speech.stance}`;
+  const list = document.getElementById("readList");
+  list.innerHTML = "";
+  speech.lines.forEach((line,i)=>{
+    const card = document.createElement("div");
+    card.className = "read-line" + (i === currentReadIndex ? " active" : "");
+    card.id = `read-line-${i}`;
+    card.innerHTML = `
+      <div class="small">Line ${i+1} / ${line.cue}</div>
+      <div class="read-en">${line.en}</div>
+      <button onclick="speakLine(${i})">▶ この文を再生</button>
+    `;
+    list.appendChild(card);
+  });
+}
+
+function loadVoiceOptions(){
+  if(!("speechSynthesis" in window)) return;
+
+  const allVoices = window.speechSynthesis.getVoices();
+  availableVoices = allVoices.filter(v => v.lang && v.lang.toLowerCase().startsWith("en"));
+
+  const select = document.getElementById("voiceSelect");
+  const note = document.getElementById("voiceNote");
+  if(!select || !note) return;
+
+  if(availableVoices.length === 0){
+    select.innerHTML = `<option value="">No English voices found yet</option>`;
+    note.textContent = "If voices do not appear, tap Test once or reload the page.";
+    return;
+  }
+
+  if(!selectedVoiceURI){
+    const preferred =
+      availableVoices.find(v => /allison/i.test(v.name)) ||
+      availableVoices.find(v => /alex/i.test(v.name)) ||
+      availableVoices.find(v => /ava/i.test(v.name)) ||
+      availableVoices.find(v => /samantha/i.test(v.name)) ||
+      availableVoices.find(v => /google.*us english/i.test(v.name)) ||
+      availableVoices[0];
+
+    selectedVoiceURI = preferred.voiceURI;
+    localStorage.setItem("eikenSpeechSelectedVoiceURI", selectedVoiceURI);
+  }
+
+  const stillExists = availableVoices.some(v => v.voiceURI === selectedVoiceURI);
+  if(!stillExists){
+    selectedVoiceURI = availableVoices[0].voiceURI;
+    localStorage.setItem("eikenSpeechSelectedVoiceURI", selectedVoiceURI);
+  }
+
+  select.innerHTML = availableVoices.map(v => {
+    const label = `${v.name} / ${v.lang}${v.default ? " / default" : ""}`;
+    return `<option value="${v.voiceURI}">${label}</option>`;
+  }).join("");
+
+  select.value = selectedVoiceURI;
+
+  const selected = getSelectedVoice();
+  note.textContent = selected
+    ? `Selected: ${selected.name} / ${selected.lang}`
+    : `${availableVoices.length} English voices available.`;
+}
+
+function selectVoice(){
+  const select = document.getElementById("voiceSelect");
+  if(!select) return;
+  selectedVoiceURI = select.value;
+  localStorage.setItem("eikenSpeechSelectedVoiceURI", selectedVoiceURI);
+  loadVoiceOptions();
+}
+
+function getSelectedVoice(){
+  if(!availableVoices.length && "speechSynthesis" in window){
+    availableVoices = window.speechSynthesis.getVoices()
+      .filter(v => v.lang && v.lang.toLowerCase().startsWith("en"));
+  }
+  return availableVoices.find(v => v.voiceURI === selectedVoiceURI) || availableVoices[0] || null;
+}
+
+function testVoice(){
+  const selected = getSelectedVoice();
+  const sample = "This is a voice test for your Eiken speech practice.";
+  speakText(sample, null, true);
+  const note = document.getElementById("voiceNote");
+  if(note && selected) note.textContent = `Testing: ${selected.name} / ${selected.lang}`;
+}
+
+function speakText(text, onend, cancelFirst=true){
+  if(cancelFirst) window.speechSynthesis.cancel();
+  loadVoiceOptions();
+
+  const utter = new SpeechSynthesisUtterance(text);
+  const voice = getSelectedVoice();
+
+  if(voice){
+    utter.voice = voice;
+    utter.lang = voice.lang || "en-US";
+  }else{
+    utter.lang = "en-US";
+  }
+
+  utter.rate = rate;
+  utter.pitch = 1;
+  utter.onend = () => {
+    if(onend) onend();
+  };
+  utter.onerror = () => {
+    if(onend) onend();
+  };
+  window.speechSynthesis.speak(utter);
+}
+
+function speakLine(i){
+  isPlayingAll = false;
+  currentReadIndex = i;
+  renderRead();
+  const el = document.getElementById(`read-line-${i}`);
+  if(el) el.scrollIntoView({behavior:"smooth", block:"center"});
+  speakText(speech.lines[i].en, () => {
+    currentReadIndex = -1;
+    renderRead();
+  }, true);
+}
+
+function playAll(){
+  stopSpeaking(false);
+  isPlayingAll = true;
+  playQueue = speech.lines.map((_,i)=>i);
+  playNextInQueue();
+}
+
+function playNextInQueue(){
+  if(!isPlayingAll || playQueue.length === 0){
+    currentReadIndex = -1;
+    isPlayingAll = false;
+    renderRead();
+    return;
+  }
+  const i = playQueue.shift();
+  currentReadIndex = i;
+  renderRead();
+  const el = document.getElementById(`read-line-${i}`);
+  if(el) el.scrollIntoView({behavior:"smooth", block:"center"});
+  speakText(speech.lines[i].en, () => {
+    setTimeout(playNextInQueue, 350);
+  }, false);
+}
+
+function stopSpeaking(reset=true){
+  if(window.speechSynthesis){
+    window.speechSynthesis.cancel();
+  }
+  isPlayingAll = false;
+  playQueue = [];
+  if(reset){
+    currentReadIndex = -1;
+    renderRead();
+  }
+}
+
+if ("speechSynthesis" in window) {
+  window.speechSynthesis.onvoiceschanged = loadVoiceOptions;
+  setTimeout(loadVoiceOptions, 100);
+  setTimeout(loadVoiceOptions, 700);
+  setTimeout(loadVoiceOptions, 1500);
+}
+
+
+function formatTime(sec){
+  const m = String(Math.floor(sec / 60)).padStart(2, "0");
+  const s = String(sec % 60).padStart(2, "0");
+  return `${m}:${s}`;
+}
+
+function renderExam(){
+  document.getElementById("examMeta").textContent = `${speech.title} / ${speech.stance}`;
+  document.getElementById("timer").textContent = formatTime(timeLeft);
+}
+
+function startTimer(){
+  stopTimer();
+  timerInterval = setInterval(() => {
+    timeLeft--;
+    renderExam();
+    if(timeLeft <= 0){
+      stopTimer();
+      stopExamRecording();
+      alert("Time's up!");
+    }
+  }, 1000);
+}
+
+function stopTimer(){
+  if(timerInterval){
+    clearInterval(timerInterval);
+    timerInterval = null;
+  }
+}
+
+function resetTimer(){
+  stopTimer();
+  timeLeft = 120;
+  renderExam();
+}
+
+async function startExamRecording(){
+  try{
+    if(mediaRecorder && mediaRecorder.state === "recording") return;
+    audioChunks = [];
+    const stream = await navigator.mediaDevices.getUserMedia({ audio: true });
+    mediaRecorder = new MediaRecorder(stream);
+    mediaRecorder.ondataavailable = e => {
+      if(e.data.size > 0) audioChunks.push(e.data);
+    };
+    mediaRecorder.onstop = () => {
+      const blob = new Blob(audioChunks, { type: "audio/webm" });
+      if(recordingUrl) URL.revokeObjectURL(recordingUrl);
+      recordingUrl = URL.createObjectURL(blob);
+      const audio = document.getElementById("recordingAudio");
+      audio.src = recordingUrl;
+      audio.style.display = "block";
+      stream.getTracks().forEach(track => track.stop());
+    };
+    resetTimer();
+    mediaRecorder.start();
+    startTimer();
+  }catch(e){
+    alert("マイクの使用が許可されませんでした。ブラウザの設定を確認してください。");
+  }
+}
+
+function stopExamRecording(){
+  stopTimer();
+  if(mediaRecorder && mediaRecorder.state === "recording"){
+    mediaRecorder.stop();
+  }
+}
+
+function playRecording(){
+  const audio = document.getElementById("recordingAudio");
+  if(audio.src) audio.play();
+}
+
+function clearRecording(){
+  const audio = document.getElementById("recordingAudio");
+  audio.pause();
+  audio.removeAttribute("src");
+  audio.style.display = "none";
+  if(recordingUrl) URL.revokeObjectURL(recordingUrl);
+  recordingUrl = null;
+  audioChunks = [];
+}
+
+initCategories();
+initTopics();
+updateHeader();
+setDisplayMode("jp");
+setRate(1.0);
+loadVoiceOptions();
+</script>
+</body>
+</html>
